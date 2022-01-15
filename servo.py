@@ -1,30 +1,29 @@
 import RPi.GPIO as GPIO
 import time
+import math
 
-servoPIN = 17
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(servoPIN, GPIO.OUT)
 
-p = GPIO.PWM(servoPIN, 50) # GPIO 17 for PWM with 50Hz
-p.start(2.5) # Initialization
-try:
-  while True:
-    p.ChangeDutyCycle(5)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(7.5)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(10)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(12.5)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(10)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(7.5)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(5)
-    time.sleep(0.5)
-    p.ChangeDutyCycle(2.5)
-    time.sleep(0.5)
-except KeyboardInterrupt:
-  p.stop()
-  GPIO.cleanup()
+
+class Servo:
+    def __init__(self, pin, offset=0, limit_left=-math.pi / 2, limit_right=math.pi / 2):
+        self.pin = pin
+        self.offset = offset
+        self.limit_left = limit_left
+        self.limit_right = limit_right
+
+    def __enter__(self):
+        GPIO.setup(self.pin, GPIO.OUT)
+        self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz
+        self.pwm.start(2.5 + 5 / math.pi * self.offset)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.pwm.stop()
+
+    def set(self, radian):
+        actual = radian + self.offset
+        if actual > self.limit_right:
+            actual = self.limit_right
+        elif actual < self.limit_left:
+            actual = self.limit_left
+        self.pwm.ChangeDutyCycle(2.5 + 5 / math.pi * actual)
