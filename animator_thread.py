@@ -1,7 +1,9 @@
 import logging
 import time
 import math
+import random
 from animation.animation_clip import AnimationClip
+from audio_analysis_thread import get_latest_bpm
 from servo import Servo
 
 
@@ -17,21 +19,52 @@ EXECUTORS['leftForearm'] = Servo(6, 1, -0.2, -math.pi/4, math.pi/4)
 EXECUTORS['leftArm'] = Servo(5, -1, -0.2, -math.pi/4, math.pi/4)
 
 
+def apply_tpose():
+    for (name, executor) in EXECUTORS.items():
+        executor.set(0)
+
+
 def dancing_routine(thread_name, quit_flag):
     animation_database = {}
-    animation_database['general'] = [ AnimationClip.from_csv('anim/Armature_TestDance.csv') ]
+    # For each category, only the first one is always played. The rest are picked
+    # to become the first, starting from the end, with the same odds each time.
+    # That means that the ones that are at the end are the most lucky.
+    animation_database['general'] = [
+        AnimationClip.from_csv('anim/Armature_Kalinka.csv'),
+        AnimationClip.from_csv('anim/Armature_TestDance.csv'),
+    ]
     category = 'general'
-    current_clip_idx = 0
+    current_clip_timeout = 5
+
+    def choose_new_clip():
+        nonlocal category
+        nonlocal animation_database
+        nonlocal current_clip_timeout
+
+        db = animation_database[category]
+        clip_index = len(db) - 1
+        while clip_index > 1:
+            if random.uniform(0, 1) < 0.5:
+                break;
+            
+            clip_index -= 1
+
+        temp = db[clip_index]
+        db[clip_index] = db[0]
+        db[0] = temp
+
+        current_clip_timeout = random.randint(2, 5)
+
 
     progress = 0
 
     frequency = 10
+    bpm = get_latest_bpm()
+    progress_delta = bpm / 60 / frequency
 
     try:
         while not quit_flag:
-            logging.info("Resampling animation...")
-
-            clip = animation_database[category][current_clip_idx]
+            clip = animation_database[category][0]
             frame = clip.sample(progress)
 
             for (name, value) in frame.values.items():
@@ -39,15 +72,21 @@ def dancing_routine(thread_name, quit_flag):
                     continue
                 
                 executor = EXECUTORS[name]
-                print(f"{name}: {value}")
-
                 executor.set(value)
 
-            progress = (progress + 0.5/frequency) % clip.duration
+            progress = (progress + progress_delta) % clip.duration
+            current_clip_timeout -= progress_delta
+
+            if current_clip_timeout <= 0:
+                choose_new_clip()
 
             time.sleep(1/frequency)
     finally:
         # cleanup
+        logging.info("T-Posing...")
+        apply_tpose()
+
+        time.sleep(1)
         logging.info("%s: finishing", thread_name)
 
 
@@ -56,8 +95,7 @@ def tpose_routine(thread_name, quit_flag):
         while not quit_flag:
             logging.info("T-Posing...")
 
-            for (name, executor) in EXECUTORS.items():
-                executor.set(0)
+            apply_tpose()
 
             time.sleep(1)
     finally:
@@ -68,5 +106,5 @@ def tpose_routine(thread_name, quit_flag):
 def animator_thread_func(thread_name, settings, quit_flag):
     logging.info("%s: starting", thread_name)
 
-    # dancing_routine(thread_name, quit_flag)
-    tpose_routine(thread_name, quit_flag)
+    dancing_routine(thread_name, quit_flag)
+    # tpose_routine(thread_name, quit_flag)

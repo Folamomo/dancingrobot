@@ -3,6 +3,7 @@ import time
 import aubio
 import soundcard as sc
 import numpy as np
+from threading import Lock
 
 
 # constants
@@ -22,6 +23,19 @@ onset = aubio.onset("default", win_s, hop_s, samplerate)
 pitcher.set_unit("Hz")
 # ignore frames under this level (dB)
 pitcher.set_silence(-40)
+
+bpm = 120
+bpm_lock = Lock()
+def set_latest_bpm(value):
+    bpm_lock.acquire()
+    bpm = value
+    bpm_lock.release()
+def get_latest_bpm():
+    bpm_lock.acquire()
+    try:
+        return bpm
+    finally:
+        bpm_lock.release()
 
 
 def audio_analysis_thread_func(thread_name, settings, quit_flag):
@@ -57,13 +71,15 @@ def gather_audio_chunk(recorder):
     data = recorder.record(numframes=hop_s)
 
     # convert data to aubio float samples
-    samples = np.frombuffer(data, dtype=aubio.float_type)
+    samples = np.fromstring(data, dtype=aubio.float_type)
     # pitch of current frame
-    freq = pitcher(samples)
+    # freq = pitcher(samples)
     t = tempo(samples)
     # print(t)
-    # print(tempo.get_bpm())
+    # print(freq)
     if (t):
-        print(tempo.get_bpm())
-        logging.debug("beat")
+        b = tempo.get_bpm()
+        print(b)
+
+        set_latest_bpm(b)
     
