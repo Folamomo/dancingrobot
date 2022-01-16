@@ -11,7 +11,7 @@ class Servo:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz
-        self.pwm.start(2.7 + 5 / math.pi * self.offset)
+        self.pwm.start(7.5 + 10 / math.pi * self.offset)
 
     # def __enter__(self):
     #
