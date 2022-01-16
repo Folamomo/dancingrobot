@@ -11,7 +11,7 @@ class Servo:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz
-        self.pwm.start(2.5 + 5 / math.pi * self.offset)
+        self.pwm.start(2.7 + 5 / math.pi * self.offset)
 
     # def __enter__(self):
     #
@@ -25,4 +25,4 @@ class Servo:
             actual = self.limit_right
         elif actual < self.limit_left:
             actual = self.limit_left
-        self.pwm.ChangeDutyCycle(2.5 + 5 / math.pi * actual)
+        self.pwm.ChangeDutyCycle(7.5 + 5 / math.pi * actual)
