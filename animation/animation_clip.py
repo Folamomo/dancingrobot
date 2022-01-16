@@ -6,6 +6,7 @@ class AnimationClip:
     def __init__(self, keyframes):
         self.keyframes = keyframes
         self.framerate = 1/24
+        self.duration = round(len(keyframes) * self.framerate)
 
     def sample(self, progress: float) -> Keyframe:
         frame = progress * 24

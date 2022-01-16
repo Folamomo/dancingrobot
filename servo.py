@@ -5,6 +5,7 @@ import math
 class Servo:
     def __init__(self, pin, mulitplier = 1, offset = 0, limit_left = -math.pi/2, limit_right = math.pi/2):
         self.pin = pin
+        self.mulitplier = mulitplier
         self.offset = offset
         self.limit_left = limit_left
         self.limit_right = limit_right
