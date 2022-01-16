@@ -1,8 +1,5 @@
 import RPi.GPIO as GPIO
-import time
 import math
-
-GPIO.setmode(GPIO.BCM)
 
 
 class Servo:
@@ -13,6 +10,7 @@ class Servo:
         self.limit_right = limit_right
 
     def __enter__(self):
+        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz
         self.pwm.start(2.5 + 5 / math.pi * self.offset)
