@@ -19,7 +19,7 @@ EXECUTORS['rightArm'] = Servo(25, 1, -0.2, -math.pi/4, math.pi/4)
 EXECUTORS['leftForearm'] = Servo(6, 1, -0.2, -math.pi/4, math.pi/4)
 EXECUTORS['leftArm'] = Servo(5, -1, -0.2, -math.pi/4, math.pi/4)
 
-remote_servo_connection = RemoteServoConnection()
+remote_servo_connection = RemoteServoConnection(-1, 21.5)
 
 def apply_tpose():
     for (name, executor) in EXECUTORS.items():
@@ -79,7 +79,7 @@ def dancing_routine(thread_name, quit_flag):
                 executor.set(value)
 
             # -- Uncomment this if you want the LEGO axes to move as well.
-            # remote_servo_connection.set(frame.values['position:hips:x'], frame.values['position:hips:z'])
+            remote_servo_connection.set(frame.values['position:hips:x'], frame.values['position:hips:z'])
 
             progress = (progress + progress_delta) % clip.duration
             current_clip_timeout -= progress_delta

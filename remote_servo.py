@@ -18,5 +18,5 @@ class RemoteServoConnection:
             logging.error("WebSocket isn't connected.")
             return
 
-        self.ws.send(('%.2f' % x) + "," + ('%.2f' % z))
+        self.ws.send(('%.2f' % x) + "," + ('%.2f' % (z * self.mulitplier + self.offset)))
 
