@@ -1,2 +1,4 @@
 .idea
 settings.json
+activate.bat
+__pycache__
