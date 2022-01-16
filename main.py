@@ -2,12 +2,12 @@ import threading
 import json
 import logging
 import time
-from audioAnalysisThread import audio_analysis_thread_func
-from animatorThread import animator_thread_func
+from audio_analysis_thread import audio_analysis_thread_func
+from animator_thread import animator_thread_func
 from thread_util import Flag
 
 LOGGING_LEVEL = logging.INFO
-# LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.DEBUG
 
 
 def load_settings():
@@ -17,7 +17,7 @@ def load_settings():
     except FileNotFoundError as e:
         print('Missing \"settings.json\" file. Please provide one.')
         exit(1)
-    
+
 
 def main():
     # Setting up a logger

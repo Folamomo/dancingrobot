@@ -39,14 +39,14 @@ def audio_analysis_thread_func(thread_name, settings, quit_flag):
 
             for device in sc.all_microphones(True):
                 print(' - {"name": "' + device.name + '", "loopback": ' + str(device.isloopback).lower() + '}')
-            
+        
             return
 
-            logging.info("Starting to listen, press Ctrl+C to stop")
-            with mic.recorder(samplerate, 1) as recorder:
-                # main loop
-                while not quit_flag:
-                    gather_audio_chunk(recorder)
+        logging.info("Starting to listen, press Ctrl+C to stop")
+        with mic.recorder(samplerate, 1) as recorder:
+            # main loop
+            while not quit_flag:
+                gather_audio_chunk(recorder)
 
     finally:
         logging.info("%s: finishing", thread_name)
@@ -64,6 +64,6 @@ def gather_audio_chunk(recorder):
     # print(t)
     # print(tempo.get_bpm())
     if (t):
-        # print(tempo.get_bpm())
-        logging.debug("beat", end="\t", flush=True)
+        print(tempo.get_bpm())
+        logging.debug("beat")
     
