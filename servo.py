@@ -25,4 +25,4 @@ class Servo:
             actual = self.limit_right
         elif actual < self.limit_left:
             actual = self.limit_left
-        self.pwm.ChangeDutyCycle(7.5 + 5 / math.pi * actual)
+        self.pwm.ChangeDutyCycle(7.5 + 10 / math.pi * actual)
