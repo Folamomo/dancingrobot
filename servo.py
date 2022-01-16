@@ -8,15 +8,16 @@ class Servo:
         self.offset = offset
         self.limit_left = limit_left
         self.limit_right = limit_right
-
-    def __enter__(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pin, 50)  # 50Hz
         self.pwm.start(2.5 + 5 / math.pi * self.offset)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.pwm.stop()
+    # def __enter__(self):
+    #
+    #
+    # def __exit__(self, exc_type, exc_val, exc_tb):
+    #     self.pwm.stop()
 
     def set(self, radian):
         actual = radian + self.offset
