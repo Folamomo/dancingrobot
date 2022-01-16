@@ -5,6 +5,7 @@ import random
 from animation.animation_clip import AnimationClip
 from audio_analysis_thread import get_latest_bpm
 from servo import Servo
+from remote_servo import RemoteServoConnection
 
 
 EXECUTORS = {}
@@ -18,6 +19,7 @@ EXECUTORS['rightArm'] = Servo(25, 1, -0.2, -math.pi/4, math.pi/4)
 EXECUTORS['leftForearm'] = Servo(6, 1, -0.2, -math.pi/4, math.pi/4)
 EXECUTORS['leftArm'] = Servo(5, -1, -0.2, -math.pi/4, math.pi/4)
 
+remote_servo_connection = RemoteServoConnection()
 
 def apply_tpose():
     for (name, executor) in EXECUTORS.items():
@@ -32,6 +34,8 @@ def dancing_routine(thread_name, quit_flag):
     animation_database['general'] = [
         AnimationClip.from_csv('anim/Armature_Kalinka.csv'),
         AnimationClip.from_csv('anim/Armature_TestDance.csv'),
+        AnimationClip.from_csv('anim/Armature_Eel.csv'),
+        AnimationClip.from_csv('anim/Armature_SingleLadies.csv'),
     ]
     category = 'general'
     current_clip_timeout = 5
@@ -53,7 +57,7 @@ def dancing_routine(thread_name, quit_flag):
         db[clip_index] = db[0]
         db[0] = temp
 
-        current_clip_timeout = random.randint(2, 5)
+        current_clip_timeout = math.ceil(random.randint(2, 5) / db[0].duration) * db[0].duration
 
 
     progress = 0
@@ -73,6 +77,9 @@ def dancing_routine(thread_name, quit_flag):
                 
                 executor = EXECUTORS[name]
                 executor.set(value)
+
+            # -- Uncomment this if you want the LEGO axes to move as well.
+            # remote_servo_connection.set(frame.values['position:hips:x'], frame.values['position:hips:z'])
 
             progress = (progress + progress_delta) % clip.duration
             current_clip_timeout -= progress_delta
